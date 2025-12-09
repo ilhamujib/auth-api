@@ -1,27 +1,28 @@
 name: Continuous Integration
- 
+
 on: 
   pull_request:
     branches:
       - master
- 
+  push:
+    branches:
+      - master
+
 jobs:
   test:
     runs-on: ubuntu-latest
- 
+
     strategy:
       matrix:
         node-version: ['18.x', '20.x']
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-   
+
     services:
       postgres:
         image: postgres
         env:
-         POSTGRES_USER: developer
-         POSTGRES_PASSWORD: mysecretpassword
-         POSTGRES_DB: authapi
-         
+          POSTGRES_USER: developer
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: authapi
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -29,13 +30,16 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
- 
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+    
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
     - name: npm install migrate and test
       run: |
         npm install
